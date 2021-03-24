@@ -206,7 +206,7 @@ def shell_cmd(cmd, ret_code=False):
     else:
         return subprocess.check_output(cmd, shell=True).decode()
 
-def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
+def _run_make(kdir, arch, target=None, jopt=None,cc='gcc',
               cross_compile=None, use_ccache=None, output=None, log_file=None,
               opts=None, cross_compile_compat=None):
     args = ['make']
@@ -218,9 +218,6 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
 
     if jopt:
         args.append('-j{}'.format(jopt))
-
-    if silent:
-        args.append('-s')
 
     args.append('ARCH={}'.format(arch))
 
@@ -361,12 +358,13 @@ def build_kernel(b_env, kdir, arch, defconfig=None, jopt=None,
         mod_path = os.path.join(output_path, '_modules_')
     build_log = 'build.log'
     log_file = os.path.join(output_path, build_log)
+
     dot_config = os.path.join(output_path, '.config')
     if os.path.exists(log_file):
         os.unlink(log_file)
 
     opts = {
-        'KBUILD_BUILD_USER': 'KernelCI',
+        'KBUILD_BUILD_USER': 'TUXML',
     }
 
     kwargs = {
