@@ -650,3 +650,5 @@ if __name__ == "__main__":
     install_kernel(kdir=extraction_path, output_path=output_folder, install_path=install_path)
 
     shutil.rmtree(extraction_path)
+
+    print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
