@@ -375,7 +375,6 @@ def build_kernel(b_env, kdir, arch, defconfig=None, jopt=None,
         'cross_compile_compat': cross_compile_compat,
         'use_ccache': use_ccache,
         'output': output_path,
-        'verbose': verbose,
         'log_file': log_file,
         'opts': opts,
     }
