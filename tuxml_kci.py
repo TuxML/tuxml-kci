@@ -21,6 +21,8 @@ import io
 
 from  kernelci import build,shell_cmd, print_flush
 
+git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v";
+
 # Hard-coded binary kernel image names for each CPU architecture
 KERNEL_IMAGE_NAMES = {
     'arm': ['zImage', 'xipImage'],
@@ -644,11 +646,13 @@ if __name__ == "__main__":
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
 
-    build.build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
+    build.build_kernel(b_env,extraction_path,arch)
+    #build.build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
 
     install_path = os.path.join(output_folder, '_install_')
 
-    build.install_kernel(kdir=extraction_path, output_path=output_folder, install_path=install_path)
+    build.install_kernel(install_path,kver,git_url,"master")
+    #build.install_kernel(kdir=extraction_path, output_path=output_folder, install_path=install_path)
 
     shutil.rmtree(extraction_path)
 
