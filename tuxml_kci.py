@@ -105,8 +105,7 @@ def download_kernel(args):
 def kernel(config, arch=None):
     current = os.getcwd()
     print(f"{current}")
-    os.chdir("../kernelci-core")
-    print(os.getcwd() + "\n")
+    #print(os.getcwd() + "\n")
     
     if arch=="32":
         build.build_kernel("gcc-8", current + "/kernel/", "i386")
