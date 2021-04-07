@@ -20,6 +20,7 @@ def parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "-c",
         "--config",
         help="Use a config that you already have setup with yourconfig.config or randconfig to run with a random"
              "config.",
@@ -28,19 +29,23 @@ def parser():
     )
 
     parser.add_argument(
+        "-k",
+
         "--kernel_version",
         help="The kernel version to use",
         nargs='?'
     )
 
     parser.add_argument(
-        "--compiler",
+        "-b",
+        "--build_env",
         help="Specify the version of gcc compiler.",
         default="gcc6",
         nargs='?'
     )
 
     parser.add_argument(
+        "-a",
         "--arch",
         help="The architecture of the kernel, could be x86_64 or x86_32. Precise only with 32 or 64.",
         default="64",
@@ -129,10 +134,10 @@ def kernel(config, arch=None):
 if __name__ == "__main__":
     # Get line parameters
     args = parser()
-    config = args.config
-    kv = args.kernel_version
-    c = args.compiler
-    arch = args.arch
+    config = args['config']
+    kv = args['kernel_version']
+    c = args['build_env']
+    arch = args['arch']
 
     git_url = git_url + kv
 
