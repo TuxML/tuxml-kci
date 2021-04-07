@@ -1,146 +1,188 @@
-#!usr/bin/env python
-
 import argparse
-import json
 import subprocess
-import sys
 import tarfile
-import tempfile
 import urllib.request
-import calendar
-import time
+
 import os
-import shutil
-import stat
-import platform
-import fnmatch
+from os import path
+from kernelci import build, shell_cmd, print_flush
+from kernelci.config.build import BuildEnvironment
 
-import elftools.elf.constants as elfconst
-import elftools.elf.elffile as elffile
-import io
+###########################################################
 
-import kernelci.elf
-from  kernelci import build,shell_cmd, print_flush
-from  kernelci.config.build import BuildEnvironment
-
+krnl = "kernel"
+kerBuild = "/kernel/build"
+kv = "";
 git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v";
-build_config="./shared_volume/configs/build-configs.yaml"
 
 
-# sys.path.append(os.path.abspath("/kernelci-core"))
-# import kernelci.build as kci_build
-# import kernelci.config.build as kci_build_config
-kernel_versions_path = "/shared_volume/kernel_versions"
-base_path = "/tuxml-kci"
-
-# Hard-coded make targets for each CPU architecture
-MAKE_TARGETS = {
-    'arm': 'zImage',
-    'arm64': 'Image',
-    'arc': 'uImage',
-}
-
-def argparser():
+def parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-c",
         "--config",
-        help="Use a config that you already have setup with your .config or randconfig to run with a random"
+        help="Use a config that you already have setup with yourconfig.config or randconfig to run with a random"
              "config.",
-        default="tinyconfig",
-        nargs='?',
-        required=True
+        default="randconfig",
+        nargs='?'
     )
 
     parser.add_argument(
-        "-k",
         "--kernel_version",
         help="The kernel version to use",
-        nargs='?',
-        required=True
+        nargs='?'
     )
 
     parser.add_argument(
-        "-b",
-        "--build_env",
+        "--compiler",
         help="Specify the version of gcc compiler.",
-        default="gcc-8",
-        nargs='?',
-        required=True
+        default="gcc6",
+        nargs='?'
     )
 
     parser.add_argument(
-        "-a",
         "--arch",
         help="The architecture of the kernel, could be x86_64 or x86_32. Precise only with 32 or 64.",
-        default="x86_64",
-        nargs="?",
-        required=True
+        default="64",
+        nargs="?"
     )
 
     # marker 1 done (squelette du script avec argparse )
     return parser.parse_args()
 
 
-def download_kernel(kver):
-    filename = kver + ".tar.xz"
+def download_kernel(args):
+    argxz = args + ".tar.xz"  # it take the stable versions
+    base_url = "https://mirrors.edge.kernel.org/pub/linux/kernel"
 
-    # fetch the kernel version at this address
-    url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v%s.x/linux-%s" % (kver.strip('.')[0], filename)
-
-    # Check if folder that will contain tarballs exists. If not then create it
-    if not (os.path.exists(kernel_versions_path)):
-        os.mkdir(kernel_versions_path)
-
-    # If the tarball isn't available locally, then download it otherwise do nothing
-    if not (os.path.exists("{}/{}".format(kernel_versions_path, filename))):
-        print(f"{filename} is downloading.")
-        urllib.request.urlretrieve(url, "{}/{}".format(kernel_versions_path, filename))
+    # for kernel versions 5.x.x
+    if args.startswith("5."):
+        url = base_url + "/v5.x/linux-" + argxz
+        # for kernel version 4.x.x
     else:
-        print(f"{filename} already downladed.")
+        url = base_url + "/v4.x/linux-" + argxz
 
+    downloaded_filename = "./shared_volume/kernel_versions/" + argxz
 
-def extract_kernel(kver):
-    filename = kver + ".tar.xz"
-    # create a temporary directory where the tarball will be extracted
-    extract_dir = tempfile.mkdtemp()
-    print('The created temporary directory is %s' % extract_dir)
+    # downloaded_filename = argxz
 
-    # Check if the kernel to extract is actually available
-    if not (os.path.exists("{base_path}/{filename}".format(base_path=base_path, filename=filename))):
-        tar = tarfile.open("{kvp}/{filename}".format(kvp=kernel_versions_path, filename=filename), "r:xz")
-        print(f"Extracting {filename}.")
-        tar.extractall(extract_dir)
+    # create dir [kernel_versions] into shared volume if not exist
+    if not (path.exists("/shared_volume/kernel_versions")):
+        subprocess.call("mkdir ./shared_volume/kernel_versions", shell=True)
+
+        # if exist check, if downloaded_filename exists unpack else download
+    if not (path.exists(downloaded_filename)):
+        print(f"{downloaded_filename} is downloading.\n")
+        urllib.request.urlretrieve(url, downloaded_filename)
+    else:
+        print(f"{downloaded_filename} already downladed.")
+
+    dir_name = "linux-" + args
+    if not (path.exists(dir_name)):
+        fname = args + '.tar.xz'
+        tar = tarfile.open("./shared_volume/kernel_versions/" + fname, "r:xz")
+        print(f"Extracting {fname}.")
+        tar.extractall()
         tar.close()
-        print(f"{filename} has been extracted into {extract_dir}/linux-{kver}")
-    extract_dir = f"{extract_dir}/linux-{kver}"
-    return extract_dir
+        print(f"{fname} has been extracted into {dir_name}")
+    else:
+        print(f"{dir_name} has been already extracted.")
+    # TODO: use variable for "kernel" folder name
+    # clean folder and sources
+    if (path.exists(krnl)):
+        subprocess.call("rm -r -f ./" + krnl, shell=True)
+    subprocess.call(f"mv {dir_name} ./" + krnl, shell=True)
+    os.chdir(krnl)
+    print("Cleaning the source code . . .")
+    subprocess.call("make distclean", shell=True)
+    os.chdir("..")
+
+
+# The function that will build the kernel with the .config or a randconfig
+# suppos that you  have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
+# and import everything you have to import to use those command
+def kernel(config, arch=None):
+    current = os.getcwd()
+
+    if arch == "32":
+        build_env = BuildEnvironment("build_config", "gcc", "8", "i386")
+        build.build_kernel("gcc-8", current + "/kernel/", "i386")
+        # subprocess.run(
+        #   args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current +
+        #   "/kernel/ --verbose ", shell=True, check=True)
+    else:
+        build_env = BuildEnvironment("build_config", "gcc", "8", "x86_64")
+        build.build_kernel("build_env", current + "/kernel/", "x86_64")
+        # subprocess.run(
+        #        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current +
+        #        "/kernel/ --verbose ", shell=True, check=True
+        # )
+
+    # first version, need to change the tree-url and branch value I guess
+    build.install_kernel(current + "/" + krnl, kv, git_url, "master")
+    # subprocess.run(
+    #            args="python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=%s/%s"
+    #            %(kv, git_url, current, krnl), shell=True, check=True
+    # )
+
 
 if __name__ == "__main__":
     # Get line parameters
-    args = argparser()
+    args = parser()
     config = args.config
-    kver = args.kernel_version
-    b_env = args.build_env
+    kv = args.kernel_version
+    c = args.compiler
     arch = args.arch
 
-    download_kernel(kver)
-    extraction_path = extract_kernel(kver)
+    git_url = git_url + kv
 
+    # Get and unzip kernel archive
+    if kv is not None:
+        download_kernel(kv)
+        current = os.getcwd()
 
-    current_date = calendar.timegm(time.gmtime())
-    output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
-    # for gcc-8 => b_env[:-2]-> gcc ,b_env[4:]-> 8
-    build_env = BuildEnvironment("build_config",b_env[:-2],b_env[4:])
-    build.build_kernel(build_env,extraction_path,arch)
-    #build.build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
+    # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent)
+    if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
+        # enter in the kernel folder
+        os.chdir(krnl)
+        print("Trying to make " + config + " into " + os.getcwd())
+        # create the config using facilities
 
-    install_path = os.path.join(output_folder, '_install_')
+        if arch == "32":
+            subprocess.call('KCONFIG_ALLCONFIG=../x86_32.config make ' + config, shell=True)
 
-    build.install_kernel(install_path,kver,git_url,"master")
-    #build.install_kernel(kdir=extraction_path, output_path=output_folder, install_path=install_path)
+        else:
+            subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
 
-    shutil.rmtree(extraction_path)
+        # move .config into build directory
+        subprocess.call("mkdir build", shell=True)
+        subprocess.call('mv .config ./build', shell=True)
+        # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
+        # otherwise kernel sources are not clean and kci complains 
+        subprocess.call('make mrproper', shell=True)
+        # back
+        os.chdir("..")
 
-    print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
+    # .config given, moove it into the /kernel/build/ directory
+    else:
+        path_config = os.getcwd()
+        subprocess.call("mkdir ." + kerBuild, shell=True)
+        subprocess.call("mv " + path_config + "/" + config + " ." + kerBuild + "/.config", shell=True)
+
+    kernel(os.getcwd() + kerBuild + "/", arch)
+    os.chdir("..")
+
+    print(os.getcwd())
+    # print the bmeta.json
+    f = open(os.getcwd() + "/tuxml-kci" + kerBuild + "/bmeta.json", "r")
+    print(f.read())
+
+    subprocess.call("mkdir ./tuxml-kci/output/%s_output" % kv, shell=True)
+
+    subprocess.call("cp ./tuxml-kci/%s/_install_/bmeta.json ./tuxml-kci/output/%s_output" % (krnl, kv), shell=True)
+
+    subprocess.call("cp ./tuxml-kci%s/build.log ./tuxml-kci/output/%s_output" % (kerBuild, kv), shell=True)
+
+# marker 5 done(on lance le build du kernel)
+
+# reste a prendre les outputs
