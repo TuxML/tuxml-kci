@@ -19,7 +19,8 @@ import elftools.elf.constants as elfconst
 import elftools.elf.elffile as elffile
 import io
 
-from  kernelci import build,shell_cmd, print_flush,config
+from  kernelci import build,shell_cmd, print_flush
+from  kernelci import config as kciconf
 
 git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v";
 build_config="./shared_volume/configs/build-configs.yaml"
@@ -645,7 +646,7 @@ if __name__ == "__main__":
 
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
-    build_env = config.BuildEnvironment(build_config)
+    build_env = kciconf.BuildEnvironment(build_config)
     build.build_kernel(build_env,extraction_path,arch)
     #build.build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
 
