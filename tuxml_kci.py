@@ -62,13 +62,13 @@ def download_kernel(args):
     else:
         url = base_url + "/v4.x/linux-" + argxz
 
-    downloaded_filename = "./shared_volume/kernel_versions/" + argxz
+    downloaded_filename = "/shared_volume/kernel_versions/" + argxz
 
     # downloaded_filename = argxz
 
     # create dir [kernel_versions] into shared volume if not exist
     if not (path.exists("/shared_volume/kernel_versions")):
-        subprocess.call("mkdir ./shared_volume/kernel_versions", shell=True)
+        subprocess.call("mkdir /shared_volume/kernel_versions", shell=True)
 
         # if exist check, if downloaded_filename exists unpack else download
     if not (path.exists(downloaded_filename)):
@@ -80,7 +80,7 @@ def download_kernel(args):
     dir_name = "linux-" + args
     if not (path.exists(dir_name)):
         fname = args + '.tar.xz'
-        tar = tarfile.open("./shared_volume/kernel_versions/" + fname, "r:xz")
+        tar = tarfile.open("/shared_volume/kernel_versions/" + fname, "r:xz")
         print(f"Extracting {fname}.")
         tar.extractall()
         tar.close()
