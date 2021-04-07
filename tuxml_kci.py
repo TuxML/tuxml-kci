@@ -136,8 +136,6 @@ if __name__ == "__main__":
 
     git_url = git_url + kv
 
-    print(config)
-
     # Get and unzip kernel archive
     if kv is not None:
         download_kernel(kv)
@@ -169,7 +167,7 @@ if __name__ == "__main__":
     else:
         path_config = os.getcwd()
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        subprocess.call("mv " + path_config + "/" + config + " ." + kerBuild + "/.config", shell=True)
+        subprocess.call("mv " + config + " ." + kerBuild + "/.config", shell=True)
 
     kernel(os.getcwd() + kerBuild + "/", arch)
     os.chdir("..")
