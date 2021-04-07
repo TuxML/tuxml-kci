@@ -133,7 +133,7 @@ def kernel(config, arch=None):
 
 if __name__ == "__main__":
     # Get line parameters
-    args = parser()
+    args = vars(parser())
     config = args['config']
     kv = args['kernel_version']
     c = args['build_env']
