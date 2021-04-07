@@ -106,13 +106,13 @@ def kernel(config, arch=None):
 
     if arch == "32":
         build_env = BuildEnvironment("build_config", "gcc", "8", "i386")
-        build.build_kernel("gcc-8", current + "/kernel/", "i386")
+        build.build_kernel(build_env, current + "/kernel/", "i386")
         # subprocess.run(
         #   args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current +
         #   "/kernel/ --verbose ", shell=True, check=True)
     else:
         build_env = BuildEnvironment("build_config", "gcc", "8", "x86_64")
-        build.build_kernel("build_env", current + "/kernel/", "x86_64")
+        build.build_kernel(build_env, current + "/kernel/", "x86_64")
         # subprocess.run(
         #        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current +
         #        "/kernel/ --verbose ", shell=True, check=True
