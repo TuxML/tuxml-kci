@@ -655,6 +655,7 @@ if __name__ == "__main__":
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
 
     os.chdir("/kernelci_core/")
+    print_flush("Coin1")
 
     f = open("config/core/lab-configs.yaml", "a")
     f.write(
@@ -667,9 +668,10 @@ if __name__ == "__main__":
     "        plan:\n"
     "          - baseline\n")
     f.close()
-
+    print_flush("Coin2")
     cmd_generate = "./kci_test generate --bmeta-json=/shared_volume/gcc-8_x86_64/1616596107_4.13/_install_/bmeta.json --dtbs-json=/shared_volume/gcc-8_x86_64/1616596107_4.13/_install_/dtbs.json --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > job_docker.yaml"
     os.system(cmd_generate)
-
+    print_flush("Coin3")
     cmd_submit = "./kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs=job_docker.yaml"
     os.system(cmd_submit)
+    print_flush("Coin4")
