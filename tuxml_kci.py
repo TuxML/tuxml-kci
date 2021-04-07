@@ -14,6 +14,7 @@ import shutil
 import stat
 import platform
 import fnmatch
+import yaml
 
 import elftools.elf.constants as elfconst
 import elftools.elf.elffile as elffile
@@ -653,4 +654,22 @@ if __name__ == "__main__":
 
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
 
-    #TODO
+    os.chdir("/kernelci_core/")
+
+    f = open("config/core/lab-configs.yaml", "a")
+    f.write(
+    "\n"
+    "  lab-local:\n"
+    "    lab_type: lava\n"
+    "    url: 'http://master1'\n"
+    "    filters:\n"
+    "      - passlist:\n"
+    "        plan:\n"
+    "          - baseline\n")
+    f.close()
+
+    cmd_generate = "./kci_test generate --bmeta-json=/shared_volume/gcc-8_x86_64/1616596107_4.13/_install_/bmeta.json --dtbs-json=/shared_volume/gcc-8_x86_64/1616596107_4.13/_install_/dtbs.json --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > job_docker.yaml"
+    os.system(cmd_generate)
+
+    cmd_submit = "./kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs=job_docker.yaml"
+    os.system(cmd_submit)
