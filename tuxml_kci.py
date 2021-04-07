@@ -25,7 +25,8 @@ def parser():
         help="Use a config that you already have setup with yourconfig.config or randconfig to run with a random"
              "config.",
         default="randconfig",
-        nargs='?'
+        nargs='?',
+        required=True
     )
 
     parser.add_argument(
@@ -33,7 +34,8 @@ def parser():
 
         "--kernel_version",
         help="The kernel version to use",
-        nargs='?'
+        nargs='?',
+        required=True
     )
 
     parser.add_argument(
@@ -41,7 +43,8 @@ def parser():
         "--build_env",
         help="Specify the version of gcc compiler.",
         default="gcc6",
-        nargs='?'
+        nargs='?',
+        required=True
     )
 
     parser.add_argument(
@@ -49,7 +52,8 @@ def parser():
         "--arch",
         help="The architecture of the kernel, could be x86_64 or x86_32. Precise only with 32 or 64.",
         default="64",
-        nargs="?"
+        nargs="?",
+        required=True
     )
 
     # marker 1 done (squelette du script avec argparse )
@@ -174,7 +178,8 @@ if __name__ == "__main__":
         subprocess.call("mkdir ." + kerBuild, shell=True)
         subprocess.call("cp " + config + " ." + kerBuild + "/miniconfig.config", shell=True)
         os.chdir("./kernel")
-        subprocess.call(f'KCONFIG_ALLCONFIG=miniconfig.config make alldefconfig',shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=miniconfig.config allnoconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=miniconfig.config alldefconfig',shell=True)
         os.chdir("..")
 
     kernel(os.getcwd() + kerBuild + "/", arch)
