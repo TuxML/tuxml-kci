@@ -136,6 +136,8 @@ if __name__ == "__main__":
 
     git_url = git_url + kv
 
+    print(config)
+
     # Get and unzip kernel archive
     if kv is not None:
         download_kernel(kv)
@@ -163,7 +165,7 @@ if __name__ == "__main__":
         # back
         os.chdir("..")
 
-    # .config given, moove it into the /kernel/build/ directory
+    # .config given, move it into the /kernel/build/ directory
     else:
         path_config = os.getcwd()
         subprocess.call("mkdir ." + kerBuild, shell=True)
@@ -176,12 +178,6 @@ if __name__ == "__main__":
     # print the bmeta.json
     f = open(os.getcwd() + "/tuxml-kci" + kerBuild + "/bmeta.json", "r")
     print(f.read())
-
-    subprocess.call("mkdir ./tuxml-kci/output/%s_output" % kv, shell=True)
-
-    subprocess.call("cp ./tuxml-kci/%s/_install_/bmeta.json ./tuxml-kci/output/%s_output" % (krnl, kv), shell=True)
-
-    subprocess.call("cp ./tuxml-kci%s/build.log ./tuxml-kci/output/%s_output" % (kerBuild, kv), shell=True)
 
 # marker 5 done(on lance le build du kernel)
 
