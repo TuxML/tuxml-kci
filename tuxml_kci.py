@@ -645,8 +645,8 @@ if __name__ == "__main__":
 
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
-
-    build.build_kernel(build_config,extraction_path,arch)
+    build_env = build.BuildEnvironment(build_config)
+    build.build_kernel(build_env,extraction_path,arch)
     #build.build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
 
     install_path = os.path.join(output_folder, '_install_')
