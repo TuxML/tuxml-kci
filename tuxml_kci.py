@@ -174,7 +174,7 @@ if __name__ == "__main__":
         subprocess.call("mkdir ." + kerBuild, shell=True)
         subprocess.call("cp " + config + " ." + kerBuild + "/.config", shell=True)
         os.chdir(f".{kerBuild}")
-        subprocess.call(f'KCONFIG_ALLCONFIG=.config make allnoconfig',shell=True)
+        subprocess.call(f'KCONFIG_ALLCONFIG=.config make randconfig',shell=True)
         os.chdir(path_config)
 
     kernel(os.getcwd() + kerBuild + "/", arch)
