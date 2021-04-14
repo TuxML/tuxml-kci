@@ -178,10 +178,10 @@ if __name__ == "__main__":
         path_config = os.getcwd()
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        subprocess.call("cp %s %s/" % (config, kerBuild), shell=True)
+        subprocess.call("cp %s .%s/" % (config, kerBuild), shell=True)
         targetFile = r".\%s\*.config" % kerBuild
         targetFile = glob.glob(targetFile)
-        print(targetFile(0))
+        print(targetFile.get(0))
         subprocess.call("mv %s .config" % targetFile)
         os.chdir("./kernel")
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config allnoconfig', shell=True)
