@@ -175,11 +175,12 @@ if __name__ == "__main__":
     # .config given, move it into the /kernel/build/ directory
     else:
         path_config = os.getcwd()
+        print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        subprocess.call("cp " + config + " ." + kerBuild + "/miniconfig.config", shell=True)
+        subprocess.call("mv %d .%d/.config" % (config, kerBuild), shell=True)
         os.chdir("./kernel")
-        subprocess.call(f'make KCONFIG_ALLCONFIG=miniconfig.config allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG=miniconfig.config alldefconfig',shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=.config allnoconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=.config alldefconfig',shell=True)
         os.chdir("..")
 
     kernel(os.getcwd() + kerBuild + "/", arch)
