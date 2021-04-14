@@ -179,6 +179,7 @@ if __name__ == "__main__":
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
         targetFile = r".\%s\*.config" % kerBuild
+        targetFile = glob.glob(targetFile)
         print(targetFile)
         subprocess.call("cp %s %s" % (config, kerBuild), shell=True)
         subprocess.call("mv %s .config" % targetFile)
