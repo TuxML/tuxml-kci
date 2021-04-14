@@ -180,7 +180,7 @@ if __name__ == "__main__":
         subprocess.call("mkdir ." + kerBuild, shell=True)
         print(os.getcwd())
         print(config)
-        subprocess.call("mv %s .%s/.config" % (config, kerBuild), shell=True)
+        subprocess.call("mv ../%s .%s/.config" % (config, kerBuild), shell=True)
         #targetFile = ".%s/*.config" % kerBuild
         #targetFiles = glob.glob(targetFile)
         #print("taille : %s premier element  " % (len(targetFiles)))
