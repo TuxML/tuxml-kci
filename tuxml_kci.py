@@ -179,9 +179,9 @@ if __name__ == "__main__":
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
         subprocess.call("cp %s .%s/" % (config, kerBuild), shell=True)
-        targetFile = r".\%s\*.config" % kerBuild
+        targetFile = ".%s/*.config" % kerBuild
         targetFiles = glob.glob(targetFile)
-        print("taille : %s premiere element %d " % (len(targetFiles), targetFiles[0]))
+        print("taille : %s premiere element  " % (len(targetFiles)))
         subprocess.call("mv %s .config" % targetFiles[0])
         os.chdir("./kernel")
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config allnoconfig', shell=True)
