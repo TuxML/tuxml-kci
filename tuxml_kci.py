@@ -2,6 +2,7 @@ import argparse
 import subprocess
 import tarfile
 import urllib.request
+import glob
 
 import os
 from os import path
@@ -177,7 +178,10 @@ if __name__ == "__main__":
         path_config = os.getcwd()
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        subprocess.call("mv %s /build/.config" % (config), shell=True)
+        targetFile = r".\%s\*.config" % kerBuild
+        print(targetFile)
+        subprocess.call("cp %s %s" % (config, kerBuild), shell=True)
+        subprocess.call("mv %s .config" % targetFile)
         os.chdir("./kernel")
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config allnoconfig', shell=True)
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config alldefconfig',shell=True)
