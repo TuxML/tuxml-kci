@@ -128,6 +128,8 @@ def kernel(config, arch=None):
         #        "/kernel/ --verbose ", shell=True, check=True
         # )
 
+    print(f'End of Build.')
+
     # first version, need to change the tree-url and branch value I guess
     build.install_kernel(current + "/" + krnl, kv, git_url, "master")
     # subprocess.run(
@@ -178,16 +180,10 @@ if __name__ == "__main__":
         path_config = os.getcwd()
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        print(os.getcwd())
-        print(config)
         subprocess.call("mv ../%s .%s/.config" % (config, kerBuild), shell=True)
-        #targetFile = ".%s/*.config" % kerBuild
-        #targetFiles = glob.glob(targetFile)
-        #print("taille : %s premier element  " % (len(targetFiles)))
-        #subprocess.call("mv %s ./.config" % targetFiles[0])
         os.chdir("./kernel")
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config alldefconfig',shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config alldefconfig', shell=True)
         os.chdir("..")
 
     kernel(os.getcwd() + kerBuild + "/", arch)
