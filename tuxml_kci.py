@@ -114,13 +114,13 @@ def kernel(sources_path, install_path,output_path, arch=None):
 
     if arch == "32":
         build_env = BuildEnvironment("build_config", "gcc", "8", "i386")
-        build.build_kernel(build_env, sources_path + "/kernel/", "i386", output_path=output_path)
+        build.build_kernel(build_env, sources_path + "/kernel", "i386", output_path=output_path)
         # subprocess.run(
         #   args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current +
         #   "/kernel/ --verbose ", shell=True, check=True)
     else:
         build_env = BuildEnvironment("build_config", "gcc", "8", "x86_64")
-        build.build_kernel(build_env, sources_path + "/kernel/", "x86_64", output_path=output_path)
+        build.build_kernel(build_env, sources_path + "/kernel", "x86_64", output_path=output_path)
         # subprocess.run(
         #        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current +
         #        "/kernel/ --verbose ", shell=True, check=True
@@ -169,8 +169,8 @@ if __name__ == "__main__":
             subprocess.call('KCONFIG_ALLCONFIG=/tuxml-kci/x86_64.config make ' + config, shell=True)
 
         # move .config into build directory
-        subprocess.call("mkdir ./kernel/build", shell=True)
-        subprocess.call(f'mv .config ./kernel/build', shell=True)
+        subprocess.call("mkdir build", shell=True)
+        subprocess.call(f'mv .config ./build', shell=True)
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains 
         subprocess.call('make mrproper', shell=True)
@@ -181,10 +181,10 @@ if __name__ == "__main__":
         path_config = os.getcwd()
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        subprocess.call("mv ../%s .%s/.config" % (config, f"{extraction_path}/kernel/build"), shell=True)
+        subprocess.call("mv ../%s .%s/.config" % (config, f"{extraction_path}/build"), shell=True)
         os.chdir("./kernel")
-        subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config alldefconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=../build/.config allnoconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG=../build/.config alldefconfig', shell=True)
         os.chdir("..")
 
     kernel(extraction_path,install_path,output_folder, arch)
