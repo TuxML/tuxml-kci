@@ -80,7 +80,7 @@ def extract_kernel(kver):
     extract_dir = f"{extract_dir}/linux-{kver}"
     # clean source code
     tmp_current = os.getcwd()
-    os.chdir(f"{extract_dir}")
+    os.chdir(f"{extract_dir}/kernel")
     print("Cleaning the source code . . .")
     subprocess.call("make distclean", shell=True)
     os.chdir(tmp_current)
@@ -175,7 +175,6 @@ if __name__ == "__main__":
         # otherwise kernel sources are not clean and kci complains 
         subprocess.call('make mrproper', shell=True)
         # back
-        os.chdir("..")
 
     # .config given, move it into the /kernel/build/ directory
     else:
@@ -189,7 +188,6 @@ if __name__ == "__main__":
         os.chdir("..")
 
     kernel(extraction_path,install_path,output_folder, arch)
-    os.chdir("..")
 
     print(os.getcwd())
     # print the bmeta.json
