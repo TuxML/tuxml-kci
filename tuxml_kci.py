@@ -169,8 +169,8 @@ if __name__ == "__main__":
             subprocess.call('KCONFIG_ALLCONFIG=/tuxml-kci/x86_64.config make ' + config, shell=True)
 
         # move .config into build directory
-        subprocess.call("mkdir build", shell=True)
-        subprocess.call(f'mv .config ./build', shell=True)
+        subprocess.call("mkdir /kernel/build", shell=True)
+        subprocess.call(f'mv .config /kernel/build', shell=True)
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains 
         subprocess.call('make mrproper', shell=True)
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         path_config = os.getcwd()
         print(path_config)
         subprocess.call("mkdir ." + kerBuild, shell=True)
-        subprocess.call("mv ../%s .%s/.config" % (config, kerBuild), shell=True)
+        subprocess.call("mv ../%s .%s/.config" % (config, f"{extraction_path}/kernel/build"), shell=True)
         os.chdir("./kernel")
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config allnoconfig', shell=True)
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config alldefconfig', shell=True)
