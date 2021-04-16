@@ -158,7 +158,7 @@ if __name__ == "__main__":
     # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent)
     if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
         # enter in the kernel folder
-        os.chdir(f"{extraction_path}/kernel")
+        os.chdir(f"{extraction_path}")
         print("Trying to make " + config + " into " + os.getcwd())
         # create the config using facilities
 
