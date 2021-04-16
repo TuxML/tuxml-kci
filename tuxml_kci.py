@@ -163,10 +163,10 @@ if __name__ == "__main__":
         # create the config using facilities
 
         if arch == "32":
-            subprocess.call('KCONFIG_ALLCONFIG=./x86_32.config make ' + config, shell=True)
+            subprocess.call('KCONFIG_ALLCONFIG=/tuxml-kci/x86_32.config make ' + config, shell=True)
 
         else:
-            subprocess.call('KCONFIG_ALLCONFIG=./x86_64.config make ' + config, shell=True)
+            subprocess.call('KCONFIG_ALLCONFIG=/tuxml-kci/x86_64.config make ' + config, shell=True)
 
         # move .config into build directory
         subprocess.call("mkdir build", shell=True)
