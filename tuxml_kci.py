@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
         # move .config into build directory
         subprocess.call("mkdir build", shell=True)
-        subprocess.call(f'mv .config {output_folder}/build', shell=True)
+        subprocess.call(f'mv .config ./build', shell=True)
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains 
         subprocess.call('make mrproper', shell=True)
