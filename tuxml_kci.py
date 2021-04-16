@@ -109,7 +109,7 @@ def download_kernel(kver):
 # The function that will build the kernel with the .config or a randconfig
 # suppos that you  have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
 # and import everything you have to import to use those command
-def kernel(install_path,output_path, arch=None):
+def kernel(sources_path, install_path,output_path, arch=None):
     current = os.getcwd()
 
     if arch == "32":
@@ -129,7 +129,7 @@ def kernel(install_path,output_path, arch=None):
     print(f'End of Build.')
 
     # first version, need to change the tree-url and branch value I guess
-    build.install_kernel(current + "/" + krnl, kv,git_url, "master",output_path=output_path, install_path=install_path)
+    build.install_kernel(f"{sources_path}/kernel", kv,git_url, "master",output_path=output_path, install_path=install_path)
     # subprocess.run(
     #            args="python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=%s/%s"
     #            %(kv, git_url, current, krnl), shell=True, check=True
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         subprocess.call(f'make KCONFIG_ALLCONFIG=/build/.config alldefconfig', shell=True)
         os.chdir("..")
 
-    kernel(install_path,output_folder, arch)
+    kernel(extraction_path,install_path,output_folder, arch)
     os.chdir("..")
 
     print(os.getcwd())
