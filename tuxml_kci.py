@@ -14,7 +14,6 @@ from kernelci.config.build import BuildEnvironment
 
 ###########################################################
 
-krnl = "kernel"
 kerBuild = "/kernel/build"
 kv = "";
 git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v";
@@ -159,7 +158,7 @@ if __name__ == "__main__":
     # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent)
     if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
         # enter in the kernel folder
-        os.chdir(krnl)
+        os.chdir(f"{extraction_path}/kernel")
         print("Trying to make " + config + " into " + os.getcwd())
         # create the config using facilities
 
