@@ -109,7 +109,7 @@ def build_kernel(kdir, arch, config=None, jopt=None,
             subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_64.config make ' + config, shell=True)
 
         os.mkdir(f"{kdir}/build")
-        os.replace(f"{kdir}/.config", f"{kdir}/build/.config")
+        shutil.copy(f"{kdir}/.config", f"{kdir}/build/.config")
 
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains
