@@ -80,7 +80,7 @@ def extract_kernel(kver):
     extract_dir = f"{extract_dir}/linux-{kver}"
     # clean source code
     tmp_current = os.getcwd()
-    os.chdir(f"{extract_dir}/kernel")
+    os.chdir(f"{extract_dir}")
     print("Cleaning the source code . . .")
     subprocess.call("make distclean", shell=True)
     os.chdir(tmp_current)
