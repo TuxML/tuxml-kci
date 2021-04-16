@@ -121,7 +121,7 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         subprocess.call(f'make KCONFIG_ALLCONFIG=./.config alldefconfig', shell=True)
 
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
-    build.build_kernel(b_env=build_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
+    build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
     print(f"Build ended.")
 
     # first version, need to change the tree-url and branch value I guess
