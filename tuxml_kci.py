@@ -116,10 +116,12 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         subprocess.call('make mrproper', shell=True)
 
     else:
+        config = None
         os.mkdir(f"{kdir}/build")
-        shutil.copy(config, f"{kdir}/build/.config")
-        subprocess.call(f'make KCONFIG_ALLCONFIG=./.config allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG=./.config alldefconfig', shell=True)
+        shutil.copy(config, f"{output_path}/.config")
+
+        subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config allnoconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config alldefconfig', shell=True)
 
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
     build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
