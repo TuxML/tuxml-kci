@@ -18,7 +18,7 @@ import fnmatch
 import elftools.elf.constants as elfconst
 import elftools.elf.elffile as elffile
 import io
-
+import format_log
 
 # Hard-coded binary kernel image names for each CPU architecture
 KERNEL_IMAGE_NAMES = {
@@ -652,3 +652,17 @@ if __name__ == "__main__":
     shutil.rmtree(extraction_path)
 
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
+    json_data = format_log(output_folder)
+
+    apiManager = APIManager()
+
+    response = apiManager.sendPost(json_data)
+    if (response.status_code == 201):
+        cid = response.json()
+        print("ok")
+
+    else:
+        print("error")
+
+
+
