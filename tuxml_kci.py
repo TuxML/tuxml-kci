@@ -102,6 +102,7 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     os.chdir(kdir)
 
     if config in known_configs:
+        pass
         # print("Trying to make " + config + " into " + os.getcwd())
         # # create the config using facilities
         # if arch == "32":
