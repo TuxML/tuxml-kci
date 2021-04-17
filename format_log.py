@@ -39,9 +39,7 @@ compilation_result20, compilation_result22, compilation_result19, gcc_version, t
     return json_structure
 
 
-if __name__=='__main__':
-
-    build_path = argv[1]
+def create_json(build_path):
     env = get_environment_details()
     environmenthard = env['hardware']
     environmentsoft = env['software']

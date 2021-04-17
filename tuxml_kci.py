@@ -652,7 +652,8 @@ if __name__ == "__main__":
     shutil.rmtree(extraction_path)
 
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
-    json_data = format_log(output_folder)
+
+    json_data = create_json(output_folder)
 
     apiManager = APIManager()
 
