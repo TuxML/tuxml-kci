@@ -116,8 +116,8 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         subprocess.call('make mrproper', shell=True)
 
     else:
-        # os.mkdir(f"{kdir}/build")
-        shutil.copy(f"{output_path}/.config",config)
+        os.mkdir(f"{output_path}")
+        shutil.copy(config, f"{output_path}/.config")
         config = None
 
         subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config allnoconfig', shell=True)
