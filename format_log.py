@@ -38,7 +38,6 @@ compilation_result20, compilation_result22, compilation_result19, gcc_version, t
 
     return json_structure
 
-def parse_result()
 
 if __name__=='__main__':
 
