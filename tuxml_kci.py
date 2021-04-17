@@ -15,7 +15,8 @@ from kernelci.config.build import BuildEnvironment
 
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
-git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -101,15 +102,15 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     os.chdir(kdir)
 
     if config in known_configs:
-        print("Trying to make " + config + " into " + os.getcwd())
-        # create the config using facilities
-        if arch == "32":
-            subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_32.config make ' + config, shell=True)
-        else:
-            subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_64.config make ' + config, shell=True)
-
-        os.mkdir(f"{kdir}/build")
-        os.replace(f"{kdir}/.config", f"{kdir}/build/.config")
+        # print("Trying to make " + config + " into " + os.getcwd())
+        # # create the config using facilities
+        # if arch == "32":
+        #     subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_32.config make ' + config, shell=True)
+        # else:
+        #     subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_64.config make ' + config, shell=True)
+        #
+        # os.mkdir(f"{kdir}/build")
+        # os.replace(f"{kdir}/.config", f"{kdir}/build/.config")
     else:
         os.mkdir(f"{output_path}")
         shutil.copy(config, f"{output_path}/.config")
@@ -121,12 +122,14 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     # otherwise kernel sources are not clean and kci complains
     subprocess.call('make mrproper', shell=True)
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
-    build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
+    build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
+                       output_path=output_folder)
     print(f"Build ended.")
 
     # first version, need to change the tree-url and branch value I guess
     install_path = os.path.join(output_folder, '_install_')
-    build.install_kernel(kdir, "tree_name", git_url, "master",git_commit=git_url,describe="From Tuxml-Kci",describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
+    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe="From Tuxml-Kci",
+                         describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
 
 
