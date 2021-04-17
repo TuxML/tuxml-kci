@@ -18,8 +18,7 @@ import fnmatch
 import elftools.elf.constants as elfconst
 import elftools.elf.elffile as elffile
 import io
-import format_log
-
+from format_log import create_json
 # Hard-coded binary kernel image names for each CPU architecture
 KERNEL_IMAGE_NAMES = {
     'arm': ['zImage', 'xipImage'],
