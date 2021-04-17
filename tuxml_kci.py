@@ -15,7 +15,7 @@ from kernelci.config.build import BuildEnvironment
 
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
-git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v"
+git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -127,7 +127,7 @@ def build_kernel(kdir, arch, config=None, jopt=None,
 
     # first version, need to change the tree-url and branch value I guess
     install_path = os.path.join(output_folder, '_install_')
-    build.install_kernel(kdir, "tree_name", git_url, "master", output_path=output_path, install_path=install_path)
+    build.install_kernel(kdir, "tree_name", git_url, "master",git_commit=git_url, output_path=output_path, install_path=install_path)
     print("Install finished.")
 
 
