@@ -19,6 +19,7 @@ import elftools.elf.constants as elfconst
 import elftools.elf.elffile as elffile
 import io
 from format_log import create_json
+from apiManager import APIManager
 # Hard-coded binary kernel image names for each CPU architecture
 KERNEL_IMAGE_NAMES = {
     'arm': ['zImage', 'xipImage'],
