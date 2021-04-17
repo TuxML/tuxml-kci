@@ -110,11 +110,6 @@ def build_kernel(kdir, arch, config=None, jopt=None,
 
         os.mkdir(f"{kdir}/build")
         os.replace(f"{kdir}/.config", f"{kdir}/build/.config")
-
-        # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
-        # otherwise kernel sources are not clean and kci complains
-        subprocess.call('make mrproper', shell=True)
-
     else:
         os.mkdir(f"{output_path}")
         shutil.copy(config, f"{output_path}/.config")
@@ -123,6 +118,9 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config allnoconfig', shell=True)
         subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config alldefconfig', shell=True)
 
+    # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
+    # otherwise kernel sources are not clean and kci complains
+    subprocess.call('make mrproper', shell=True)
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
     build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
     print(f"Build ended.")
