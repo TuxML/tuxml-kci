@@ -1,0 +1,1 @@
+python3 kci_test generate --bmeta-json=bmeta_path --dtbs-json=dtbs_path --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ --yaml-lab-configs=path/to/lab-config.yaml > job_docker.yaml
