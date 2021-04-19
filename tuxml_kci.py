@@ -125,7 +125,8 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         os.mkdir(f"{output_path}")
         # shutil.copy(config, f"{output_path}/.config")
         # subprocess.call(f'make KCONFIG_ALLCONFIG={config} allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
+        # subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG={config} allrandconfig', shell=True)
         # Trying to reuse .config made in order to avoid choices
         shutil.copy(f"{config}", f"{output_path}/.config")
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
