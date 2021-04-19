@@ -144,7 +144,7 @@ def build_kernel(kdir, arch, config=None, jopt=None,
                          describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
 
-def test_generate(path_test_configs, path_lab_configs, path_bmeta, path_dtbs, lab_config_name, lab_user, lab_token, storage_url, test_target, test_plan):
+def test_generate(path_test_configs, path_lab_configs, path_bmeta, path_dtbs, lab_config_name, lab_user, lab_token, storage_url, test_target, test_plan, output):
 
         bmeta, dtbs = build.load_json(bmeta_json=path_bmeta, dtbs_json=path_dtbs)
 
@@ -164,9 +164,13 @@ def test_generate(path_test_configs, path_lab_configs, path_bmeta, path_dtbs, la
             if job is None:
                 print("Failed to generate the job definition")
                 return False
+            output_file = os.path.join(output, "job_docker.yaml")
+            print(output_file)
+            with open(output_file, 'w') as output:
+                output.write(job)
 
-            print("# Job: {}".format(params['name']))
-            print(job)
+            #print("# Job: {}".format(params['name']))
+            #print(job)
         return True
 
 if __name__ == "__main__":
@@ -189,4 +193,24 @@ if __name__ == "__main__":
     shutil.rmtree(extraction_path)
 
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env, arch=arch))
+
+    install_path = os.path.join(output_folder, '_install_')
+    f = open("config/lab-configs.yaml", "a+")
+    f.write(
+    "\n"
+    "  lab-local:\n"
+    "    lab_type: lava\n"
+    "    url: 'http://master1'\n"
+    "    filters:\n"
+    "      - passlist:\n"
+    "          plan:\n"
+    "            - baseline\n")
+    f.close()
+    bmeta_path = os.path.join(install_path, 'bmeta.json')
+    dtbs_path = os.path.join(install_path, 'dtbs.json')
+
+    test_generate(path_test_configs="/config/test-configs.yaml", path_lab_configs="/config/lab-configs.yaml", path_bmeta=bmeta_path, path_dtbs=dtbs_path, 
+                    lab_config_name="lab-local", lab_user="admin", lab_token="8ec4c0aeaf934ed1dce98cdda800c81c", storage_url="http://storage/",
+                    test_target="baseline_qemu", test_plan="qemu_x86_64", output=output_folder)
+
 
