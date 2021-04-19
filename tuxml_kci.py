@@ -11,8 +11,9 @@ import glob
 import os
 from os import path
 from kernelci import build, shell_cmd, print_flush, test
+from kernelci.config import test, lab
 from kernelci.config.build import BuildEnvironment
-from kernelci.lab.lava import LAVALab
+from kernelci.lab.lava import LAVA
 
 
 kernel_versions_path = "/shared_volume/kernel_versions"
@@ -144,18 +145,18 @@ def build_kernel(kdir, arch, config=None, jopt=None,
                          describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
 
-def test_generate(path_test_configs, path_lab_configs, path_bmeta, path_dtbs, lab_config_name, lab_user, lab_token, storage_url, test_target, test_plan, output):
+def test_generate(test_configs, lab_configs, path_bmeta, path_dtbs, lab_config_name, lab_user, lab_token, storage_url, test_target, test_plan, output):
 
         bmeta, dtbs = build.load_json(bmeta_json=path_bmeta, dtbs_json=path_dtbs)
 
         if bmeta['status'] != "PASS":
             return True
 
-        lab = path_lab_configs['labs'][lab_config_name]
-        api = LAVALab.get_api(lab, lab_user, lab_token)
+        lab = lab_configs['labs'][lab_config_name]
+        api = LAVA.get_api(lab, lab_user, lab_token)
 
-        target = path_test_configs['device_types'][test_target]
-        plan = path_test_configs['test_plans'][test_plan]
+        target = test_configs['device_types'][test_target]
+        plan = test_configs['test_plans'][test_plan]
         jobs_list = [(target, plan)]
 
         for target, plan in jobs_list:
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env, arch=arch))
 
     install_path = os.path.join(output_folder, '_install_')
-    f = open("config/lab-configs.yaml", "a+")
+    f = open(base_path+"/config/lab-configs.yaml", "a+")
     f.write(
     "\n"
     "  lab-local:\n"
@@ -208,8 +209,10 @@ if __name__ == "__main__":
     f.close()
     bmeta_path = os.path.join(install_path, 'bmeta.json')
     dtbs_path = os.path.join(install_path, 'dtbs.json')
+    test_configs = test.from_yaml("config/test-configs.yaml")
+    lab_configs = lab.from_yaml("config/lab-configs.yaml")
 
-    test_generate(path_test_configs="/config/test-configs.yaml", path_lab_configs="/config/lab-configs.yaml", path_bmeta=bmeta_path, path_dtbs=dtbs_path, 
+    test_generate(test_configs=test_configs, lab_configs=lab_configs, path_bmeta=bmeta_path, path_dtbs=dtbs_path, 
                     lab_config_name="lab-local", lab_user="admin", lab_token="8ec4c0aeaf934ed1dce98cdda800c81c", storage_url="http://storage/",
                     test_target="baseline_qemu", test_plan="qemu_x86_64", output=output_folder)
 
