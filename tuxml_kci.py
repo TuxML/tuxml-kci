@@ -124,11 +124,11 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         # A probem is that it makes a second MAKE with choices to do, what we want to avoid in order to automatize the process.
         os.mkdir(f"{output_path}")
         # shutil.copy(config, f"{output_path}/.config")
-        # subprocess.call(f'make KCONFIG_ALLCONFIG={config} allnoconfig', shell=True)
-        # subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG={config} randconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG={config} allnoconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
         # Trying to reuse .config made in order to avoid choices
         shutil.copy(f"{config}", f"{output_path}/.config")
+        shutil.copy(f"{config}", f"{extraction_path}/.config")
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains
         subprocess.call('make mrproper', shell=True)
