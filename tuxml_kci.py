@@ -122,10 +122,10 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     else:
         # In kernelci code, the dot_config given must be placed in output_folder / .config, what is done in the following code.
         # A probem is that it makes a second MAKE with choices to do, what we want to avoid in order to automatize the process.
-        os.mkdir(f"{output_path}")
-        shutil.copy(config, f"{output_path}/.config")
-        subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config alldefconfig', shell=True)
+        # os.mkdir(f"{output_path}")
+        # shutil.copy(config, f"{output_path}/.config")
+        subprocess.call(f'make KCONFIG_ALLCONFIG={config} allnoconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
         # Trying to reuse .config made in order to avoid choices
         shutil.copy(f"./.config", f"{extraction_path}/.config")
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
