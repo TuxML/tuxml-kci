@@ -128,7 +128,8 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
         # Trying to reuse .config made in order to avoid choices
         shutil.copy(f"{config}", f"{output_path}/.config")
-        shutil.copy(f"{config}", f"{extraction_path}/.config")
+        os.mkdir(f"{extraction_path}/build")
+        shutil.copy(f"{config}", f"{extraction_path}/build/.config")
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains
         subprocess.call('make mrproper', shell=True)
