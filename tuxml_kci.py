@@ -101,8 +101,15 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     known_configs = ["tinyconfig", "defconfig", "randconfig"]
     os.chdir(kdir)
 
+    build_env = BuildEnvironment("build_config", "gcc", "8", arch)
+
     if config in known_configs:
         pass
+        # Useless code : This part is already done by the build_kernel function
+        # It takes the specified configuration to make the dot_config file.
+        build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
+                           output_path=output_folder)
+        # Todo : remove this part
         # print("Trying to make " + config + " into " + os.getcwd())
         # # create the config using facilities
         # if arch == "32":
@@ -113,18 +120,18 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         # os.mkdir(f"{kdir}/build")
         # os.replace(f"{kdir}/.config", f"{kdir}/build/.config")
     else:
+        # In kernelci code, the dot_config given must be placed in output_folder / .config, what is done in the following code.
+        # A probem is that it makes a second MAKE with choices to do, what we want to avoid in order to automatize the process.
         os.mkdir(f"{output_path}")
         shutil.copy(config, f"{output_path}/.config")
         subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config allnoconfig', shell=True)
         subprocess.call(f'make KCONFIG_ALLCONFIG={output_path}/.config alldefconfig', shell=True)
-        config = None
+        # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
+        # otherwise kernel sources are not clean and kci complains
+        subprocess.call('make mrproper', shell=True)
+        build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=None,
+                           output_path=output_folder)
 
-    # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
-    # otherwise kernel sources are not clean and kci complains
-    subprocess.call('make mrproper', shell=True)
-    build_env = BuildEnvironment("build_config", "gcc", "8", arch)
-    build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
-                       output_path=output_folder)
     print(f"Build ended.")
 
     # first version, need to change the tree-url and branch value I guess
