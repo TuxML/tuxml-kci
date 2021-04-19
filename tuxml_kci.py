@@ -104,7 +104,6 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
 
     if config in known_configs:
-        pass
         # Useless code : This part is already done by the build_kernel function
         # It takes the specified configuration to make the dot_config file.
         build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
