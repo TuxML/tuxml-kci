@@ -7,11 +7,12 @@ import tempfile
 import time
 import urllib.request
 import glob
-
+import sys
 import os
 from os import path
-from kernelci import build, shell_cmd, print_flush
-from kernelci.config.build import BuildEnvironment
+
+sys.path.append("/kernelci-core/kernelci")
+import build.py, config.build.py
 
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
@@ -62,18 +63,21 @@ def argparser():
 
 
 def download_extract_kernel(kver):
+
     filename = kver + ".tar.xz"
     url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v%s.x/linux-%s" % (kver.strip('.')[0], filename)
     extract_dir = tempfile.mkdtemp()
+    print(f"Downloading {filename} into {extract_dir} . . .")
     result = build.pull_tarball(kdir=extract_dir,
                                 url=url,
                                 dest_filename=f"{kernel_versions_path}/{filename}",
                                 retries=1,
                                 delete=False)
+    print(f"Download done.")
     return extract_dir+ f"/linux-{kver}" if result else None
 
 
-def build_kernel(kdir, arch, config=None, jopt=None,
+def build_kci_kernel(kdir, arch, config=None, jopt=None,
                  verbose=True, output_path=None, mod_path=None):
     known_configs = ["tinyconfig", "defconfig", "randconfig"]
     os.chdir(kdir)
@@ -81,7 +85,7 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
 
     if config in known_configs:
-        build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
+        build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
                            output_path=output_folder)
     else:
         os.mkdir(f"{output_path}")
@@ -93,13 +97,13 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains
         subprocess.call('make mrproper', shell=True)
-        build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=None,
+        build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=None,
                            output_path=output_folder)
     print(f"Build ended.")
 
     # first version, need to change the tree-url and branch value I guess
     install_path = os.path.join(output_folder, '_install_')
-    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe="From Tuxml-Kci",
+    install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe="From Tuxml-Kci",
                          describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
 
@@ -120,7 +124,7 @@ if __name__ == "__main__":
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch,
                                                                               timestamp=current_date, kver=kver)
 
-    build_kernel(arch=arch, kdir=extraction_path, config=config, output_path=output_folder)
+    build_kci_kernel(arch=arch, kdir=extraction_path, config=config, output_path=output_folder)
 
     shutil.rmtree(extraction_path)
 
