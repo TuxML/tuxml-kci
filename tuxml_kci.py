@@ -1,6 +1,10 @@
 import argparse
+import calendar
+import shutil
 import subprocess
 import tarfile
+import tempfile
+import time
 import urllib.request
 import glob
 
@@ -9,30 +13,26 @@ from os import path
 from kernelci import build, shell_cmd, print_flush
 from kernelci.config.build import BuildEnvironment
 
-###########################################################
-
-krnl = "kernel"
-kerBuild = "/kernel/build"
-kv = "";
-git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v";
+kernel_versions_path = "/shared_volume/kernel_versions"
+base_path = "/tuxml-kci"
+git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
 
 
-def parser():
+def argparser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "-c",
         "--config",
-        help="Use a config that you already have setup with yourconfig.config or randconfig to run with a random"
+        help="Use a config that you already have setup with your .config or randconfig to run with a random"
              "config.",
-        default="randconfig",
+        default="tinyconfig",
         nargs='?',
         required=True
     )
 
     parser.add_argument(
         "-k",
-
         "--kernel_version",
         help="The kernel version to use",
         nargs='?',
@@ -43,7 +43,7 @@ def parser():
         "-b",
         "--build_env",
         help="Specify the version of gcc compiler.",
-        default="gcc6",
+        default="gcc-8",
         nargs='?',
         required=True
     )
@@ -197,3 +197,4 @@ if __name__ == "__main__":
 # marker 5 done(on lance le build du kernel)
 
 # reste a prendre les outputs
+    print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env, arch=arch))
