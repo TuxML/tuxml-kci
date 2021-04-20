@@ -13,6 +13,8 @@ from os import path
 from kernelci import build, shell_cmd, print_flush
 from kernelci.config.build import BuildEnvironment
 
+kerBuild = "/kernel/build"
+krnl = "/kernel"
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
 git_url = "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
@@ -140,7 +142,7 @@ def kernel(config, arch=None):
 
 if __name__ == "__main__":
     # Get line parameters
-    args = vars(parser())
+    args = vars(argparser())
     config = args['config']
     kv = args['kernel_version']
     c = args['build_env']
