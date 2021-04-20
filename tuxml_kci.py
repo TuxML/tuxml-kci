@@ -51,8 +51,8 @@ def parser():
     parser.add_argument(
         "-a",
         "--arch",
-        help="The architecture of the kernel, could be x86_64 or x86_32. Precise only with 32 or 64.",
-        default="64",
+        help="The architecture of the kernel, can only be x86_64 or x86_32.",
+        default="x86_64",
         nargs="?",
         required=True
     )
@@ -114,15 +114,15 @@ def download_kernel(args):
 def kernel(config, arch=None):
     current = os.getcwd()
 
-    if arch == "32":
+    if arch == "x86_32":
         build_env = BuildEnvironment("build_config", "gcc", "8", "i386")
         build.build_kernel(build_env, current + "/kernel/", "i386")
         # subprocess.run(
         #   args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current +
         #   "/kernel/ --verbose ", shell=True, check=True)
     else:
-        build_env = BuildEnvironment("build_config", "gcc", "8", "x86_64")
-        build.build_kernel(build_env, current + "/kernel/", "x86_64")
+        build_env = BuildEnvironment("build_config", "gcc", "8", arch)
+        build.build_kernel(build_env, current + "/kernel/", arch)
         # subprocess.run(
         #        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current +
         #        "/kernel/ --verbose ", shell=True, check=True
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         print("Trying to make " + config + " into " + os.getcwd())
         # create the config using facilities
 
-        if arch == "32":
+        if arch == "x86_32":
             subprocess.call('KCONFIG_ALLCONFIG=../x86_32.config make ' + config, shell=True)
 
         else:
