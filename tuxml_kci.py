@@ -10,10 +10,12 @@ import glob
 
 import os
 from os import path
-from kernelci import build, shell_cmd, print_flush, test
+from kernelci import build, shell_cmd, print_flush
 from kernelci.config import test, lab
 from kernelci.config.build import BuildEnvironment
 from kernelci.lab.lava import LAVA
+import kernelci.lab.__init__ as LAVALab
+import kernelci.test as kci_test
 
 
 kernel_versions_path = "/shared_volume/kernel_versions"
@@ -153,14 +155,14 @@ def test_generate(test_configs, lab_configs, path_bmeta, path_dtbs, lab_config_n
             return True
 
         lab = lab_configs['labs'][lab_config_name]
-        api = LAVA.get_api(lab, lab_user, lab_token)
+        api = LAVALab.get_api(lab, lab_user, lab_token)
 
         target = test_configs['device_types'][test_target]
         plan = test_configs['test_plans'][test_plan]
         jobs_list = [(target, plan)]
 
         for target, plan in jobs_list:
-            params = test.get_params(bmeta, target, plan, storage_url)
+            params = kci_test.get_params(bmeta, target, plan, storage_url)
             job = api.generate(params, target, plan, callback_opts=None)
             if job is None:
                 print("Failed to generate the job definition")
@@ -209,11 +211,11 @@ if __name__ == "__main__":
     f.close()
     bmeta_path = os.path.join(install_path, 'bmeta.json')
     dtbs_path = os.path.join(install_path, 'dtbs.json')
-    test_configs = test.from_yaml("config/test-configs.yaml")
-    lab_configs = lab.from_yaml("config/lab-configs.yaml")
+    test_configs = test.from_yaml(base_path+"/config/test-configs.yaml")
+    lab_configs = lab.from_yaml(base_path+"/config/lab-configs.yaml")
 
     test_generate(test_configs=test_configs, lab_configs=lab_configs, path_bmeta=bmeta_path, path_dtbs=dtbs_path, 
                     lab_config_name="lab-local", lab_user="admin", lab_token="8ec4c0aeaf934ed1dce98cdda800c81c", storage_url="http://storage/",
-                    test_target="baseline_qemu", test_plan="qemu_x86_64", output=output_folder)
+                    test_target="qemu_x86_64", test_plan="baseline_qemu", output=output_folder)
 
 
