@@ -82,7 +82,10 @@ def build_kci_kernel(kdir, arch, config=None, jopt=None,
     known_configs = ["tinyconfig", "defconfig", "randconfig"]
     os.chdir(kdir)
 
-    build_env = c_build.BuildEnvironment("build_config", "gcc", "8", arch)
+    if arch in ["x86_64","i386"] :
+        build_env = c_build.BuildEnvironment("build_config", "gcc", "8","x86")
+    else:
+        build_env = c_build.BuildEnvironment("build_config", "gcc", "8", arch)
 
     if config in known_configs:
         build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
