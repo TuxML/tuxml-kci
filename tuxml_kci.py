@@ -654,8 +654,7 @@ if __name__ == "__main__":
 
     print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env,arch=arch))
 
-    os.chdir("/kernelci-core")
-    f = open("config/core/lab-configs.yaml", "a")
+    f = open("/kernelci-core/config/core/lab-configs.yaml", "a")
     f.write(
     "\n"
     "  lab-local:\n"
@@ -668,7 +667,7 @@ if __name__ == "__main__":
     f.close()
     bmeta_path = os.path.join(install_path, 'bmeta.json')
     dtbs_path = os.path.join(install_path, 'dtbs.json')
-    cmd_generate = "python3 kci_test generate --bmeta-json=bmeta_path --dtbs-json=dtbs_path --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > job_docker.yaml"
+    cmd_generate = "python3 /kernelci-core/kci_test generate --bmeta-json=bmeta_path --dtbs-json=dtbs_path --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > job_docker.yaml"
     os.system(cmd_generate)
-    cmd_submit = "python3 kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs=job_docker.yaml"
+    cmd_submit = "python3 /kernelci-core/kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs=job_docker.yaml"
     os.system(cmd_submit)
