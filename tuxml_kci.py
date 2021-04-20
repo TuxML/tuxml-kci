@@ -12,7 +12,7 @@ import os
 from os import path
 
 sys.path.append("/kernelci-core/kernelci")
-import build.py, config.build.py
+import build, config
 
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
@@ -82,10 +82,10 @@ def build_kci_kernel(kdir, arch, config=None, jopt=None,
     known_configs = ["tinyconfig", "defconfig", "randconfig"]
     os.chdir(kdir)
 
-    build_env = BuildEnvironment("build_config", "gcc", "8", arch)
+    build_env = config.build.BuildEnvironment("build_config", "gcc", "8", arch)
 
     if config in known_configs:
-        build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
+        build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
                            output_path=output_folder)
     else:
         os.mkdir(f"{output_path}")
@@ -97,13 +97,13 @@ def build_kci_kernel(kdir, arch, config=None, jopt=None,
         # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
         # otherwise kernel sources are not clean and kci complains
         subprocess.call('make mrproper', shell=True)
-        build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=None,
+        build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=None,
                            output_path=output_folder)
     print(f"Build ended.")
 
     # first version, need to change the tree-url and branch value I guess
     install_path = os.path.join(output_folder, '_install_')
-    install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe="From Tuxml-Kci",
+    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe="From Tuxml-Kci",
                          describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
 
@@ -128,4 +128,4 @@ if __name__ == "__main__":
 
     shutil.rmtree(extraction_path)
 
-    print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env, arch=arch))
+    build.print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env, arch=arch))
