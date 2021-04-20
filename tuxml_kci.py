@@ -668,7 +668,7 @@ if __name__ == "__main__":
     bmeta_path = os.path.join(install_path, 'bmeta.json')
     dtbs_path = os.path.join(install_path, 'dtbs.json')
     job_path = os.path.join(install_path, 'job_docker.yaml')
-    cmd_generate = f"python3 /kernelci-core/kci_test generate --bmeta-json={bmeta_path} --dtbs-json={dtbs_path} --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > {job_path}"
+    cmd_generate = f"python3 /kernelci-core/kci_test generate --bmeta-json={bmeta_path} --dtbs-json={dtbs_path} --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ --yaml-test-configs=/kernelci-core/config/core/test-configs.yaml --yaml-lab-configs=/kernelci-core/config/core/lab-configs.yaml > {job_path}"
     os.system(cmd_generate)
     cmd_submit = f"python3 /kernelci-core/kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs={job_path}"
     os.system(cmd_submit)
