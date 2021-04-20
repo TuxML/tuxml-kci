@@ -64,13 +64,13 @@ def argparser():
 def download_extract_kernel(kver):
     filename = kver + ".tar.xz"
     url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v%s.x/linux-%s" % (kver.strip('.')[0], filename)
-    extract_dir = tempfile.mkdtemp() + f"/linux-{kver}"
+    extract_dir = tempfile.mkdtemp()
     result = build.pull_tarball(kdir=extract_dir,
                                 url=url,
                                 dest_filename=f"{kernel_versions_path}/{filename}",
                                 retries=1,
                                 delete=False)
-    return extract_dir if result else None
+    return extract_dir+ f"/linux-{kver}" if result else None
 
 
 def build_kernel(kdir, arch, config=None, jopt=None,
