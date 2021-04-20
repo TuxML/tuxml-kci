@@ -149,5 +149,13 @@ if __name__ == "__main__":
     job_path = os.path.join(install_path, 'job_docker.yaml')
     cmd_generate = f"python3 kci_test generate --bmeta-json={bmeta_path} --dtbs-json={dtbs_path} --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > {job_path}"
     os.system(cmd_generate)
+
+    with open(job_path, "rt") as fp:
+        content = fp.read()
+        content = content.replace(f"http://storage/tree_name/master/From Tuxml-Kci/{arch}/{config}/build_config", f"http://storage/{output_folder}/_install_/")
+
+    with open(job_path, "wt") as fp:
+        fp.write(content)
+
     cmd_submit = f"python3 kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs={job_path}"
     os.system(cmd_submit)
