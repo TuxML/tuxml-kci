@@ -61,39 +61,16 @@ def argparser():
     return parser.parse_args()
 
 
-def download_kernel(kver):
+def download_extract_kernel(kver):
     filename = kver + ".tar.xz"
-
-    # fetch the kernel version at this address
     url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v%s.x/linux-%s" % (kver.strip('.')[0], filename)
-
-    # Check if folder that will contain tarballs exists. If not then create it
-    if not (os.path.exists(kernel_versions_path)):
-        os.mkdir(kernel_versions_path)
-
-    # If the tarball isn't available locally, then download it otherwise do nothing
-    if not (os.path.exists("{}/{}".format(kernel_versions_path, filename))):
-        print(f"{filename} is downloading.")
-        urllib.request.urlretrieve(url, "{}/{}".format(kernel_versions_path, filename))
-    else:
-        print(f"{filename} already downladed.")
-
-
-def extract_kernel(kver):
-    filename = kver + ".tar.xz"
-    # create a temporary directory where the tarball will be extracted
-    extract_dir = tempfile.mkdtemp()
-    print('The created temporary directory is %s' % extract_dir)
-
-    # Check if the kernel to extract is actually available
-    if not (os.path.exists("{base_path}/{filename}".format(base_path=base_path, filename=filename))):
-        tar = tarfile.open("{kvp}/{filename}".format(kvp=kernel_versions_path, filename=filename), "r:xz")
-        print(f"Extracting {filename}.")
-        tar.extractall(extract_dir)
-        tar.close()
-        print(f"{filename} has been extracted into {extract_dir}/linux-{kver}")
-    extract_dir = f"{extract_dir}/linux-{kver}"
-    return extract_dir
+    extract_dir = tempfile.mkdtemp() + f"/linux-{kver}"
+    result = build.pull_tarball(kdir=extract_dir,
+                                url=url,
+                                dest_filename=f"{kernel_versions_path}/{filename}",
+                                retries=1,
+                                delete=False)
+    return extract_dir if result else None
 
 
 def build_kernel(kdir, arch, config=None, jopt=None,
@@ -104,28 +81,12 @@ def build_kernel(kdir, arch, config=None, jopt=None,
     build_env = BuildEnvironment("build_config", "gcc", "8", arch)
 
     if config in known_configs:
-        # Useless code : This part is already done by the build_kernel function
-        # It takes the specified configuration to make the dot_config file.
         build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
                            output_path=output_folder)
-        # Todo : remove this part
-        # print("Trying to make " + config + " into " + os.getcwd())
-        # # create the config using facilities
-        # if arch == "32":
-        #     subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_32.config make ' + config, shell=True)
-        # else:
-        #     subprocess.call(f'KCONFIG_ALLCONFIG={base_path}/x86_64.config make ' + config, shell=True)
-        #
-        # os.mkdir(f"{kdir}/build")
-        # os.replace(f"{kdir}/.config", f"{kdir}/build/.config")
     else:
-        # In kernelci code, the dot_config given must be placed in output_folder / .config, what is done in the following code.
-        # A probem is that it makes a second MAKE with choices to do, what we want to avoid in order to automatize the process.
         os.mkdir(f"{output_path}")
-        # shutil.copy(config, f"{output_path}/.config")
         subprocess.call(f'make KCONFIG_ALLCONFIG={config} allnoconfig', shell=True)
         subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
-        # Trying to reuse .config made in order to avoid choices
         shutil.copy(f"{config}", f"{output_path}/.config")
         os.mkdir(f"{extraction_path}/build")
         shutil.copy(f"{config}", f"{extraction_path}/build/.config")
@@ -134,7 +95,6 @@ def build_kernel(kdir, arch, config=None, jopt=None,
         subprocess.call('make mrproper', shell=True)
         build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=None,
                            output_path=output_folder)
-
     print(f"Build ended.")
 
     # first version, need to change the tree-url and branch value I guess
@@ -152,9 +112,10 @@ if __name__ == "__main__":
     b_env = args.build_env
     arch = args.arch
 
-    download_kernel(kver)
-    extraction_path = extract_kernel(kver)
-
+    extraction_path = download_extract_kernel(kver)
+    if not extraction_path:
+        print("Download or extraction failed.")
+        exit(-1)
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch,
                                                                               timestamp=current_date, kver=kver)
