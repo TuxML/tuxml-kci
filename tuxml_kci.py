@@ -77,15 +77,12 @@ def download_extract_kernel(kver):
     return extract_dir+ f"/linux-{kver}" if result else None
 
 
-def build_kci_kernel(kdir, arch, config=None, jopt=None,
+def build_kci_kernel(kdir, arch,b_env, config=None, jopt=None,
                  verbose=True, output_path=None, mod_path=None):
     known_configs = ["tinyconfig", "defconfig", "randconfig"]
     os.chdir(kdir)
 
-    if arch in ["x86_64","i386"] :
-        build_env = c_build.BuildEnvironment("build_config", "gcc", "8","x86")
-    else:
-        build_env = c_build.BuildEnvironment("build_config", "gcc", "8", arch)
+    build_env = c_build.BuildEnvironment("build_config",b_env[:3], b_env[4:])
 
     if config in known_configs:
         build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
@@ -127,7 +124,7 @@ if __name__ == "__main__":
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch,
                                                                               timestamp=current_date, kver=kver)
 
-    build_kci_kernel(arch=arch, kdir=extraction_path, config=config, output_path=output_folder)
+    build_kci_kernel(arch=arch, kdir=extraction_path, config=config, output_path=output_folder,b_env=b_env)
 
     shutil.rmtree(extraction_path)
 
