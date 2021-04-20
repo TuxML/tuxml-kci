@@ -12,7 +12,7 @@ import os
 from os import path
 
 sys.path.append("/kernelci-core/kernelci")
-import build, config
+import build, config.build as c_build
 
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
@@ -82,7 +82,7 @@ def build_kci_kernel(kdir, arch, config=None, jopt=None,
     known_configs = ["tinyconfig", "defconfig", "randconfig"]
     os.chdir(kdir)
 
-    build_env = config.build.BuildEnvironment("build_config", "gcc", "8", arch)
+    build_env = c_build.BuildEnvironment("build_config", "gcc", "8", arch)
 
     if config in known_configs:
         build.build_kernel(build_env=build_env, arch=arch, kdir=extraction_path, defconfig=config,
