@@ -103,7 +103,7 @@ def build_kci_kernel(kdir, arch,b_env, config=None, jopt=None,
 
     # first version, need to change the tree-url and branch value I guess
     install_path = os.path.join(output_folder, '_install_')
-    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe=f"{kver}",
+    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe=f"{str(kver)}",
                          describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
     return install_path
