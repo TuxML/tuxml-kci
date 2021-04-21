@@ -103,9 +103,10 @@ def build_kci_kernel(kdir, arch,b_env, config=None, jopt=None,
 
     # first version, need to change the tree-url and branch value I guess
     install_path = os.path.join(output_folder, '_install_')
-    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe="From Tuxml-Kci",
+    build.install_kernel(kdir, "tree_name", git_url, "master", git_commit=git_url, describe=f"{kver}",
                          describe_v="Tuxml-Kci Repo", output_path=output_path, install_path=install_path)
     print("Install finished.")
+    return install_path
 
 
 if __name__ == "__main__":
@@ -116,16 +117,51 @@ if __name__ == "__main__":
     b_env = args.build_env
     arch = args.arch
 
+    # Download and extract the kernel
     extraction_path = download_extract_kernel(kver)
     if not extraction_path:
         print("Download or extraction failed.")
         exit(-1)
+    # Prepare vaiables
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch,
                                                                               timestamp=current_date, kver=kver)
-
-    build_kci_kernel(arch=arch, kdir=extraction_path, config=config, output_path=output_folder,b_env=b_env)
-
+    # Build and Install the kernel
+    install_path = build_kci_kernel(arch=arch, kdir=extraction_path, config=config, output_path=output_folder,b_env=b_env)
+    # Clean the temporary folder
     shutil.rmtree(extraction_path)
-
+    # Display the success
     build.print_flush("Build of {b_env}_{arch} complete.".format(b_env=b_env, arch=arch))
+    #
+    # LAVA
+    #
+    os.chdir("/kernelci-core")
+    f = open("config/core/lab-configs.yaml", "a")
+    f.write(
+    "\n"
+    "  lab-local:\n"
+    "    lab_type: lava\n"
+    "    url: 'http://master1'\n"
+    "    filters:\n"
+    "      - passlist:\n"
+    "          plan:\n"
+    "            - baseline\n")
+    f.close()
+    bmeta_path = os.path.join(install_path, 'bmeta.json')
+    dtbs_path = os.path.join(install_path, 'dtbs.json')
+    job_path = os.path.join(install_path, 'job_docker.yaml')
+    # Arch supported is only x86_64
+    cmd_generate = f"python3 kci_test generate --bmeta-json={bmeta_path} --dtbs-json={dtbs_path} --plan=baseline_qemu --target=qemu_x86_64 --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --storage=http://storage/ > {job_path}"
+    os.system(cmd_generate)
+
+    with open(job_path, "rt") as fp:
+        content = fp.read()
+        content = content.replace(f"http://storage/tree_name/master/From Tuxml-Kci/{arch}/{config}/build_config", f"http://storage/{output_folder}/_install_/")
+
+    with open(job_path, "wt") as fp:
+        fp.write(content)
+
+    cmd_submit = f"python3 kci_test submit --user=admin --lab-config=lab-local --lab-token=8ec4c0aeaf934ed1dce98cdda800c81c --jobs={job_path}"
+
+    os.system(cmd_submit)
+    print("Job avaliable on http://localhost:10080/scheduler/alljobs")
