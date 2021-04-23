@@ -61,21 +61,34 @@ def argparser():
     # marker 1 done (squelette du script avec argparse )
     return parser.parse_args()
 
-
-def download_extract_kernel(kver):
-
+def download_kernel(kver):
     filename = kver + ".tar.xz"
+    # fetch the kernel version at this address
     url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v%s.x/linux-%s" % (kver.strip('.')[0], filename)
-    extract_dir = tempfile.mkdtemp()
-    print(f"Downloading {filename} into {extract_dir} . . .")
-    result = build.pull_tarball(kdir=extract_dir,
-                                url=url,
-                                dest_filename=f"{kernel_versions_path}/{filename}",
-                                retries=1,
-                                delete=False)
-    print(f"Download done.")
-    return extract_dir+ f"/linux-{kver}" if result else None
+    # Check if folder that will contain tarballs exists. If not then create it
+    if not (os.path.exists(kernel_versions_path)):
+        os.mkdir(kernel_versions_path)
+    # If the tarball isn't available locally, then download it otherwise do nothing
+    if not (os.path.exists("{}/{}".format(kernel_versions_path, filename))):
+        print(f"{filename} is downloading.")
+        urllib.request.urlretrieve(url, "{}/{}".format(kernel_versions_path, filename))
+    else:
+        print(f"{filename} already downladed.")
 
+def extract_kernel(kver):
+    filename = kver + ".tar.xz"
+    # create a temporary directory where the tarball will be extracted
+    extract_dir = tempfile.mkdtemp()
+    print('The created temporary directory is %s' % extract_dir)
+    # Check if the kernel to extract is actually available
+    if not (os.path.exists("{base_path}/{filename}".format(base_path=base_path, filename=filename))):
+        tar = tarfile.open("{kvp}/{filename}".format(kvp=kernel_versions_path, filename=filename), "r:xz")
+        print(f"Extracting {filename}.")
+        tar.extractall(extract_dir)
+        tar.close()
+        print(f"{filename} has been extracted into {extract_dir}/linux-{kver}")
+    extract_dir = f"{extract_dir}/linux-{kver}"
+    return extract_dir
 
 def build_kci_kernel(kdir, arch,b_env, config=None, jopt=None,
                  verbose=True, output_path=None, mod_path=None):
@@ -118,7 +131,8 @@ if __name__ == "__main__":
     arch = args.arch
 
     # Download and extract the kernel
-    extraction_path = download_extract_kernel(kver)
+    download_kernel(kver)
+    extraction_path = extract_kernel(kver)
     if not extraction_path:
         print("Download or extraction failed.")
         exit(-1)
