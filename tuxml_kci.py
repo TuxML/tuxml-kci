@@ -102,8 +102,7 @@ def build_kci_kernel(kdir, arch,b_env, config=None, jopt=None,
                            output_path=output_folder)
     else:
         os.mkdir(f"{output_path}")
-        subprocess.call(f'make KCONFIG_ALLCONFIG={config} allnoconfig', shell=True)
-        subprocess.call(f'make KCONFIG_ALLCONFIG={config} alldefconfig', shell=True)
+        subprocess.call(f'make KCONFIG_ALLCONFIG={config} olddefconfig', shell=True)
         shutil.copy(f"{config}", f"{output_path}/.config")
         os.mkdir(f"{extraction_path}/build")
         shutil.copy(f"{config}", f"{extraction_path}/build/.config")
